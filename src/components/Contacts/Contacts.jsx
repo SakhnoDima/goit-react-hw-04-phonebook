@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { RiContactsBook2Fill, RiDeleteBin5Line } from 'react-icons/ri';
 import { Button, Error, Item, List } from './Contacts.styles';
 
-const Contacts = ({ contacts, onDeleteContacts, isOpen }) => {
+export const Contacts = ({ contacts, onDeleteContacts, isOpen }) => {
   return (
     <div>
       {isOpen ? (
@@ -26,8 +26,6 @@ const Contacts = ({ contacts, onDeleteContacts, isOpen }) => {
     </div>
   );
 };
-
-export default Contacts;
 
 Contacts.propTypes = {
   contacts: PropTypes.arrayOf(PropTypes.object),

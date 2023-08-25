@@ -3,7 +3,7 @@ import { nanoid } from 'nanoid';
 import { AiOutlineCloseCircle } from 'react-icons/ai';
 
 import Forms, { IconButton, Modal } from './Form';
-import Contacts from './Contacts';
+import { Contacts } from './Contacts';
 import Filter from './Filter';
 import { MainPage, Button } from './styles/App.styles';
 
@@ -24,14 +24,14 @@ export class App extends Component {
 
   // === дістаю з LS ===
   componentDidMount() {
-    const fromLs = localStorage.getItem(this.KEY_LS);
+    const fromLs = localStorage.getItem(KEY_LS);
     const parseContacts = JSON.parse(fromLs);
     if (parseContacts) this.setState({ contacts: parseContacts }); // перевірка на пустий LS
   }
   // === записую в LS ===
   componentDidUpdate(prevProps) {
     if (this.state.contacts !== prevProps.contact) {
-      localStorage.setItem(this.KEY_LS, JSON.stringify(this.state.contacts));
+      localStorage.setItem(KEY_LS, JSON.stringify(this.state.contacts));
     }
   }
   // === тогл модалки ===
@@ -70,12 +70,12 @@ export class App extends Component {
     const filteredContacts = contacts.filter(({ name }) => {
       return name.toLowerCase().includes(normalizeFilter);
     });
-    if (filteredContacts.length === 0) {
-      //! додав помилку якщо контактів по фільтру не знайшли
-      this.state.open = false;
-      return;
-    }
-    this.state.open = true;
+    // if (filteredContacts.length === 0) {
+    //   //! додав помилку якщо контактів по фільтру не знайшли
+    //   this.state.open = false;
+    //   return;
+    // }
+    // this.state.open = true;
 
     return filteredContacts;
   };
