@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import { nanoid } from 'nanoid';
 import { AiOutlineCloseCircle } from 'react-icons/ai';
 
@@ -9,38 +9,28 @@ import { MainPage, Button } from './styles/App.styles';
 
 const KEY_LS = 'cont';
 
-export class App extends Component {
-  state = {
-    contacts: [
-      // { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-      // { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-      // { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-      // { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-    ],
-    filter: '',
-    showModal: false,
-    open: true,
+const useLocalStorage = (kay, defaultValue) => {
+  const [state, setState] = useState(() => {
+    return JSON.parse(window.localStorage.getItem(kay)) ?? defaultValue;
+  });
+  useEffect(() => {
+    window.localStorage.setItem(kay, JSON.stringify(state));
+  }, [state, kay]);
+  return [state, setState];
+};
+
+export const App = () => {
+  const [contacts, setContacts] = useLocalStorage(KEY_LS, []);
+  const [filter, setFilter] = useState('');
+  const [showModal, setModalShow] = useState(false);
+
+  // === тогл модалки ===
+  const modalToggle = () => {
+    setModalShow(prev => !prev);
   };
 
-  // === дістаю з LS ===
-  componentDidMount() {
-    const fromLs = localStorage.getItem(KEY_LS);
-    const parseContacts = JSON.parse(fromLs);
-    if (parseContacts) this.setState({ contacts: parseContacts }); // перевірка на пустий LS
-  }
-  // === записую в LS ===
-  componentDidUpdate(prevProps) {
-    if (this.state.contacts !== prevProps.contact) {
-      localStorage.setItem(KEY_LS, JSON.stringify(this.state.contacts));
-    }
-  }
-  // === тогл модалки ===
-  modalToggle = () => {
-    this.setState(({ showModal }) => ({ showModal: !showModal }));
-  };
   // === сабміт форми ===
-  formSubmitData = ({ name, number }) => {
-    const { contacts } = this.state;
+  const formSubmitData = ({ name, number }) => {
     // ===  перевірка на вже існуюче ім'я ===
     const includeName = contacts.some(
       contact => contact.name.toLowerCase().trim() === name.toLowerCase().trim()
@@ -52,68 +42,50 @@ export class App extends Component {
     // === додавання до списку крнтакту ===
 
     const updateContacts = { id: nanoid(2), name, number };
-    this.setState(prevState => ({
-      contacts: [...prevState.contacts, updateContacts],
-    }));
+    setContacts(prev => [...prev, updateContacts]);
   };
 
   // === ім'я в полі фільтру ===
-  onFilterChange = event => {
-    this.setState({ filter: event.currentTarget.value });
+  const onFilterChange = event => {
+    setFilter(event.currentTarget.value);
   };
 
   // === фільтруємо по імені ===
-  filterContacts = () => {
-    const { contacts, filter } = this.state;
+  const filterContacts = () => {
     const normalizeFilter = filter.toLowerCase();
-
-    const filteredContacts = contacts.filter(({ name }) => {
+    return contacts.filter(({ name }) => {
       return name.toLowerCase().includes(normalizeFilter);
     });
-    // if (filteredContacts.length === 0) {
-    //   //! додав помилку якщо контактів по фільтру не знайшли
-    //   this.state.open = false;
-    //   return;
-    // }
-    // this.state.open = true;
-
-    return filteredContacts;
   };
 
   // === видаляю контакт ===
-  deleteContact = idCard => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(({ id }) => id !== idCard),
-    }));
+  const deleteContact = idCard => {
+    setContacts(prev => prev.filter(({ id }) => id !== idCard));
   };
 
-  render() {
-    const { filter, showModal } = this.state;
-    const filteredContacts = this.filterContacts();
-    return (
-      <MainPage>
-        <h1 style={{ textAlign: 'center' }}>Phonebook</h1>
-        <Forms onSubmit={this.formSubmitData} />
-        <Button type="button" onClick={this.modalToggle}>
-          All Cntacts
-        </Button>
-        {showModal && (
-          <Modal onCloses={this.modalToggle}>
-            <>
-              <IconButton onClick={this.modalToggle}>
-                <AiOutlineCloseCircle />
-              </IconButton>
-              <h2 style={{ textAlign: 'center' }}>Contacts</h2>
-              <Filter value={filter} onChange={this.onFilterChange} />
-              <Contacts
-                isOpen={this.state.open}
-                contacts={filteredContacts}
-                onDeleteContacts={this.deleteContact}
-              />
-            </>
-          </Modal>
-        )}
-      </MainPage>
-    );
-  }
-}
+  const filteredContacts = filterContacts();
+  return (
+    <MainPage>
+      <h1 style={{ textAlign: 'center' }}>Phonebook</h1>
+      <Forms onSubmit={formSubmitData} />
+      <Button type="button" onClick={modalToggle}>
+        All Cntacts
+      </Button>
+      {showModal && (
+        <Modal onCloses={modalToggle}>
+          <>
+            <IconButton onClick={modalToggle}>
+              <AiOutlineCloseCircle />
+            </IconButton>
+            <h2 style={{ textAlign: 'center' }}>Contacts</h2>
+            <Filter value={filter} onChange={onFilterChange} />
+            <Contacts
+              contacts={filteredContacts}
+              onDeleteContacts={deleteContact}
+            />
+          </>
+        </Modal>
+      )}
+    </MainPage>
+  );
+};

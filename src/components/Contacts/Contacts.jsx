@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import { RiContactsBook2Fill, RiDeleteBin5Line } from 'react-icons/ri';
 import { Button, Error, Item, List } from './Contacts.styles';
 
-export const Contacts = ({ contacts, onDeleteContacts, isOpen }) => {
+export const Contacts = ({ contacts, onDeleteContacts }) => {
   return (
     <div>
-      {isOpen ? (
+      {contacts.length > 0 ? (
         <List>
           {contacts.map(({ name, number, id }) => {
             return (
@@ -30,5 +30,4 @@ export const Contacts = ({ contacts, onDeleteContacts, isOpen }) => {
 Contacts.propTypes = {
   contacts: PropTypes.arrayOf(PropTypes.object),
   onDeleteContacts: PropTypes.func.isRequired,
-  isOpen: PropTypes.bool.isRequired,
 };
