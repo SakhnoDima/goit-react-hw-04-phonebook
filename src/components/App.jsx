@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { nanoid } from 'nanoid';
 import { AiOutlineCloseCircle } from 'react-icons/ai';
 
@@ -6,18 +6,9 @@ import Forms, { IconButton, Modal } from './Form';
 import { Contacts } from './Contacts';
 import Filter from './Filter';
 import { MainPage, Button } from './styles/App.styles';
+import { useLocalStorage } from './hook/useLocalStorage';
 
 const KEY_LS = 'cont';
-
-const useLocalStorage = (kay, defaultValue) => {
-  const [state, setState] = useState(() => {
-    return JSON.parse(window.localStorage.getItem(kay)) ?? defaultValue;
-  });
-  useEffect(() => {
-    window.localStorage.setItem(kay, JSON.stringify(state));
-  }, [state, kay]);
-  return [state, setState];
-};
 
 export const App = () => {
   const [contacts, setContacts] = useLocalStorage(KEY_LS, []);
